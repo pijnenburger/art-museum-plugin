@@ -1,37 +1,239 @@
+#react-page {
+  height: 100%;
+}
+
 body {
-  font: 12px sans-serif;
-  text-align: center;
-  margin: 20px;
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  /* font: "Inter" sans-serif; */
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  /* justify-content: space-between; */
 }
-button {
-  border-radius: 5px;
-  background: white;
-  color: black;
-  border: none;
-  padding: 8px 15px;
-  margin: 0 5px;
-  box-shadow: inset 0 0 0 1px black;
-  outline: none;
+
+.app {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-#create {
-  box-shadow: none;
-  background: #18a0fb;
-  color: white;
+
+.form {
+  padding: 1rem 1rem 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 8px;
 }
-input {
-  border: none;
-  outline: none;
-  padding: 8px;
+
+.actions {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 0;
+  gap: 8px;
 }
-input:hover {
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+
+.row {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  /* background: lightgray; */
 }
-button:focus {
-  box-shadow: inset 0 0 0 2px #18a0fb;
+
+.label {
+  padding: 0;
+  margin: 0;
+  color: var(--figma-color-text-secondary);
 }
-#create:focus {
-  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.3);
+
+.label-right {
+  padding: 0;
+  margin: 0;
+  text-align: right;
+  display: flex;
+  flex-direction: row-reverse;
+  color: var(--figma-color-text);
 }
-input:focus {
-  box-shadow: inset 0 0 0 2px #18a0fb;
+
+.divider {
+  height: 1px;
+  width: 100%;
+  background-color: var(--figma-color-bg-secondary);
+}
+
+/* Inputs */
+
+.input {
+  display: block;
+  width: 100%;
+}
+
+.input-container {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  gap: 0;
+  width: 100%;
+}
+
+.input__field {
+  background-color: var(--figma-color-bg);
+  border: 1px solid var(--figma-color-border);
+  color: var(--figma-color-text);
+  border-radius: 2px;
+}
+
+.input__field::selection {
+  background: var(--figma-color-bg-selected);
+  color: var(--figma-color-text-selected);
+}
+
+.input__field:hover {
+  background-color: var(--figma-color-bg-hover);
+  border-color: var(--figma-color-border);
+  color: var(--figma-color-text-hover);
+}
+
+.input__field::placeholder {
+  color: var(--figma-color-text-tertiary);
+}
+
+.input__field:placeholder-shown {
+  border: 1px solid var(--figma-color-border);
+}
+
+.input__field:disabled {
+  background-color: var(--figma-color-bg);
+  border-color: var(--figma-color-border);
+  color: var(--figma-color-text-secondary);
+}
+
+.input__field:disabled:hover {
+  background-color: var(--figma-color-bg);
+  border-color: var(--figma-color-border);
+  color: var(--figma-color-text-secondary);
+}
+
+.input__field:focus {
+  background-color: var(--figma-color-bg-pressed);
+  color: var(--figma-color-text-hover);
+}
+
+.input__field:active {
+  background-color: var(--figma-color-bg-hover);
+  color: var(--figma-color-text-hover);
+}
+
+/* Select */
+
+.select-menu__button {
+  background-color: var(--figma-color-bg);
+  border-color: var(--figma-color-border);
+  color: var(--figma-color-text);
+  border-radius: 2px;
+}
+
+.select-menu__button:hover {
+  background-color: var(--figma-color-bg-hover);
+  border-color: var(--figma-color-border);
+  color: var(--figma-color-text-hover);
+}
+
+.select-menu__button:focus {
+  background-color: var(--figma-color-bg-pressed);
+  color: var(--figma-color-text-hover);
+}
+
+.select-menu__label {
+  width: 100%;
+  text-align: left;
+  color: var(--figma-color-text);
+}
+
+.figma-dark .input .icon {
+  opacity: 0.8;
+  filter: invert(1);
+}
+
+.figma-light .input .icon {
+  opacity: 0.5;
+}
+
+.figma-dark .select-menu__caret {
+  opacity: 0.8;
+  margin-left: 0;
+  filter: invert(1);
+}
+
+.figma-light .select-menu__caret {
+  opacity: 0.5;
+  margin-left: 0;
+}
+
+/* Select for object type */
+
+.input__object-type {
+  width: 120px;
+}
+
+/*Toggle */
+
+.switch {
+  width: 30px;
+}
+
+.switch__label {
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+  padding: 0;
+  margin-left: 0;
+  margin-right: 12px;
+}
+
+.switch__label:before {
+  background-color: var(--figma-color-bg-secondary);
+  border: 1px solid var(--figma-color-text-tertiary);
+}
+
+.switch__toggle:checked + .switch__label:before {
+  background-color: var(--figma-color-bg-brand);
+  border: 1px solid var(--figma-color-border-onbrand);
+}
+
+.switch__label:after {
+  border: 1px solid var(--figma-color-text-tertiary);
+}
+
+.switch__toggle:checked + .switch__label:after {
+  border: 1px solid var(--figma-color-border-onbrand);
+}
+
+/* Buttons */
+
+.button {
+  background-color: var(--figma-color-bg-brand);
+  color: var(--figma-color-text-onbrand);
+}
+
+.button:hover {
+  background-color: var(--figma-color-bg-brand-hover);
+  color: var(--figma-color-text-onbrand);
+}
+
+.button:disabled,
+.button:disabled:hover {
+  background-color: var(--figma-color-bg-disabled);
+  /* color: var(--figma-color-text-disabled); */
+}
+
+.flex-grow {
+  flex-direction: row;
+  width: auto;
+  padding: auto;
+  justify-content: center;
 }
