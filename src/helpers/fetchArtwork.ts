@@ -2,18 +2,19 @@ import parentPostMessage from './parentPostMessage';
 
 export const fetchArtworkDetails = async (data: any, qualityLevel: { [key: number]: string }) => {
   try {
-    let typeFilter = data.types ? `&type=${encodeURIComponent(data.type)}` : '';
+    let typeFilter = data.type ? `&type=${data.type}` : '';
     let queryFilter = data.search && data.query !== '' ? `&q=${encodeURIComponent(data.query)}` : '';
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
-    let countUrl = `https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx&imgonly=true&culture=en&p=1&ps=1${typeFilter}${topFilter}${onDisplayFilter}${queryFilter}`;
+    let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
+    console.log(countUrl);
     let count = await fetch(countUrl).then((r) => r.json().then((s) => s.count));
 
     let randomNumber = Math.min(Math.ceil(Math.random() * count), 10000);
-    let firstUrl = `https://www.rijksmuseum.nl/api/nl/collection?key=m6fzmvxx&imgonly=true&culture=en&p=${randomNumber}&ps=1${typeFilter}${topFilter}${onDisplayFilter}${queryFilter}`;
+    let firstUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
 
-    console.log(firstUrl);
+    // console.log(firstUrl);
     let jsonFirst = await fetch(firstUrl).then((r) => r.json());
     console.log('Artworks found:', jsonFirst.count);
 
@@ -22,20 +23,16 @@ export const fetchArtworkDetails = async (data: any, qualityLevel: { [key: numbe
       let artworkTitle = jsonFirst.artObjects[0].longTitle;
 
       console.log(`Selected artwork: ${artworkTitle} (${collectionID})`);
-      // Fetching the artworks details
-      const collectionUrl = 'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '?key=m6fzmvxx&culture=en';
-      let resSecond = await fetch(collectionUrl);
-      let jsonSecond = await resSecond.json();
 
-      let label = jsonSecond.artObject;
+      const [detailsResponse, tilesResponse] = await Promise.all([
+        fetch(`https://www.rijksmuseum.nl/api/en/collection/${collectionID}?key=m6fzmvxx&culture=en`),
+        fetch(`https://www.rijksmuseum.nl/api/en/collection/${collectionID}/tiles?key=m6fzmvxx`),
+      ]);
 
-      // Fetching the image tiles
-      const fetchUrl = 'https://www.rijksmuseum.nl/api/nl/collection/' + collectionID + '/tiles?key=m6fzmvxx';
+      const [detailsData, tilesData] = await Promise.all([detailsResponse.json(), tilesResponse.json()]);
 
-      let res = await fetch(fetchUrl);
-      let json = await res.json();
-
-      let results = json.levels.filter((obj) => {
+      let label = detailsData.artObject;
+      let results = tilesData.levels.filter((obj) => {
         return obj.name === qualityLevel[data.values[0]];
       });
 

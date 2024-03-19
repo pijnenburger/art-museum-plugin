@@ -70,6 +70,68 @@ async function createArtwork(msg) {
     pictureFrame.dashPattern = [12, 24];
     pictureFrame.strokeAlign = 'OUTSIDE';
     pictureFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
+    pictureFrame.effects = [
+      {
+        type: 'INNER_SHADOW',
+        color: { r: 0, g: 0, b: 0, a: 0.25 },
+        offset: { x: -12, y: -12 },
+        radius: 12,
+        spread: 24,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'INNER_SHADOW',
+        color: { r: 0.62, g: 0.35, b: 0.17, a: 1 },
+        offset: { x: 0, y: 0 },
+        radius: 0,
+        spread: 32,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'INNER_SHADOW',
+        color: { r: 0.83, g: 0.55, b: 0.37, a: 1 },
+        offset: { x: 0, y: 0 },
+        radius: 0,
+        spread: 24,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'INNER_SHADOW',
+        color: { r: 0.47, g: 0.27, b: 0.13, a: 1 },
+        offset: { x: 0, y: 0 },
+        radius: 0,
+        spread: 16,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'DROP_SHADOW',
+        color: { r: 0, g: 0, b: 0, a: 0.08 },
+        offset: { x: 0, y: 48 },
+        radius: 40,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'DROP_SHADOW',
+        color: { r: 0, g: 0, b: 0, a: 0.08 },
+        offset: { x: 0, y: 48 },
+        radius: 40,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+      {
+        type: 'DROP_SHADOW',
+        color: { r: 0, g: 0, b: 0, a: 0.08 },
+        offset: { x: 0, y: 64 },
+        radius: 48,
+        visible: true,
+        blendMode: 'NORMAL',
+      },
+    ];
 
     container.effects = [
       {
