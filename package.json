@@ -1,5 +1,5 @@
 {
-  "name": "figma-plugin-react-template",
+  "name": "art-museum-plugin",
   "version": "1.0.0",
   "description": "This plugin template uses Typescript. If you are familiar with Javascript, Typescript will look very familiar. In fact, valid Javascript code is already valid Typescript code.",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "react-range": "^1.8.14"
   },
   "devDependencies": {
+    "@figma/eslint-plugin-figma-plugins": "^0.15.0",
     "@figma/plugin-typings": "^1.63.0",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",

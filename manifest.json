@@ -4,8 +4,9 @@
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html",
-  "editorType": [
-      "figma",
-      "figjam"
-  ]
+  "networkAccess": {
+    "allowedDomains": ["*"],
+    "reasoning": "Needs to access rijksmuseum API, rsms.me & image storage url, which is dynamic"
+  },
+  "editorType": ["figma", "figjam"]
 }

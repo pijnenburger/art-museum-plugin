@@ -2,6 +2,18 @@
   height: 100%;
 }
 
+#corner {
+  will-change: auto;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
+
+.handle_line {
+  fill: var(--figma-color-text-tertiary);
+}
+
 body {
   background-color: var(--figma-color-bg);
   color: var(--figma-color-text);
@@ -34,6 +46,7 @@ body {
   flex-direction: column;
   flex-grow: 0;
   gap: 8px;
+  border-top: 1px solid var(--figma-color-border);
 }
 
 .row {
@@ -41,6 +54,12 @@ body {
   flex-direction: row;
   gap: 4px;
   /* background: lightgray; */
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .label {
@@ -65,6 +84,14 @@ body {
 }
 
 /* Inputs */
+
+.select-row > div {
+  width: 100%;
+}
+
+/* .select-row > .label {
+   width: auto;
+} */
 
 .input {
   display: block;

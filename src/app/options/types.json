@@ -1,0 +1,5 @@
+[
+  { "label": "Painting", "value": "painting" },
+  { "label": "Photograph", "value": "photograph" },
+  { "label": "Print", "value": "print" }
+]
