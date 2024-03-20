@@ -9,15 +9,15 @@ export const fetchArtworkDetails = async (data: any, resultCount: number, qualit
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
     let randomNumber = Math.min(Math.ceil(Math.random() * resultCount), 10000);
-    let firstUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
+    let url = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
 
     // console.log(firstUrl);
-    let jsonFirst = await fetch(firstUrl).then((r) => r.json());
-    console.log('Artworks found:', jsonFirst.count);
+    let json = await fetch(url).then((r) => r.json());
+    console.log('Artworks found:', json.count);
 
-    if (jsonFirst.count > 0) {
-      let collectionID = jsonFirst.artObjects[0].objectNumber;
-      let artworkTitle = jsonFirst.artObjects[0].longTitle;
+    if (json.count > 0) {
+      let collectionID = json.artObjects[0].objectNumber;
+      let artworkTitle = json.artObjects[0].longTitle;
 
       console.log(`Selected artwork: ${artworkTitle} (${collectionID})`);
 

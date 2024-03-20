@@ -18,7 +18,6 @@ const App = () => {
     values: [2],
     type: '',
     query: '',
-    search: false,
     toppieces: false,
     onDisplay: true,
     framed: true,
@@ -40,7 +39,7 @@ const App = () => {
   // this calculates the count of options before sending it
   useEffect(() => {
     let typeFilter = data.type ? `&type=${data.type}` : '';
-    let queryFilter = data.search && data.query !== '' ? `&q=${encodeURIComponent(data.query)}` : '';
+    let queryFilter = data.query !== '' ? `&q=${encodeURIComponent(data.query)}` : '';
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
@@ -112,6 +111,15 @@ const App = () => {
               </div>
             </div>
           </div>
+          {/* Search */}
+          <div className="search-input-container">
+            <Icon color="black3" name="search" className="search-icon" />
+            <Input
+              className="input__field search-input"
+              placeholder="Search for artist, style or century"
+              onChange={queryHandler}
+            />
+          </div>
           <div className="divider" />
           {/* Quality Selector */}
           <div className="row">
@@ -176,15 +184,6 @@ const App = () => {
             </div>
           </div>
           {/* Toggleable options */}
-          <div className="divider" />
-          <div className="row">
-            <Icon color="black3" name="search" />
-            <Label>Search</Label>
-            <Checkbox label="" type="switch" defaultValue={data.search} onChange={handleCheckboxChange('search')} />
-          </div>
-          {data.search === true ? (
-            <Input className="input__field" placeholder="Search for artist, style or century" onChange={queryHandler} />
-          ) : null}{' '}
           <div className="divider" />
           <div className="row">
             <Icon color="black3" name="star-off" />
