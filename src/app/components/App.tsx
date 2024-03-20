@@ -4,8 +4,10 @@ import { Range, getTrackBackground } from 'react-range';
 import ReactLoading from 'react-loading';
 import CornerResize from './CornerResize';
 import { fetchArtworkDetails } from '../../helpers/fetchArtwork';
+// import parentPostMessage from '../../helpers/parentPostMessage';
 
-import types from '../options/types.json';
+import types from '../options/productTypes.json';
+import qualityLevels from '../options/qualityLevels.json';
 import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import '../styles/ui.css';
 
@@ -15,41 +17,54 @@ const App = () => {
   const max = 4;
 
   const [data, setData] = useState({
-    values: [2],
+    quality: [2],
     type: '',
-    query: '',
     toppieces: false,
     onDisplay: true,
     framed: true,
     caption: true,
   });
-
+  const [query, setQuery] = useState('');
   const [resultCount, setResultCount] = useState(100);
   const [isLoading, setIsLoading] = useState(false);
 
-  const qualityLabel = ['Low', 'Medium', 'High', 'Very High', 'Ultra'];
-  const qualityLevel = {
-    4: 'z0',
-    3: 'z1',
-    2: 'z2',
-    1: 'z3',
-    0: 'z4',
-  };
+  useEffect(() => {
+    // Send a message to your controller to fetch the stored data
+    parent.postMessage({ pluginMessage: { type: 'fetch-data' } }, '*');
+
+    const onMessage = (event) => {
+      if (!event.data.pluginMessage) return; // Guard clause
+      const { type, data } = event.data.pluginMessage;
+      if (type === 'fetched-data' && data) {
+        console.log('Fetched data:', data);
+        setData(data);
+      }
+    };
+    window.addEventListener('message', onMessage);
+
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('message', onMessage);
+    };
+  }, []);
+
+  // Generate qualityLabel array from qualityLevels JSON
+  const qualityLabel = qualityLevels.map((quality) => quality.label);
+  const qualityLevel = Object.fromEntries(qualityLevels.map((quality) => [quality.value, quality.level]));
 
   // this calculates the count of options before sending it
   useEffect(() => {
     let typeFilter = data.type ? `&type=${data.type}` : '';
-    let queryFilter = data.query !== '' ? `&q=${encodeURIComponent(data.query)}` : '';
+    let queryFilter = query !== '' ? `&q=${encodeURIComponent(query)}` : '';
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
     const fetchData = async () => {
       setIsLoading(true);
+      // Do initial
       try {
         let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
         const count = await fetch(countUrl).then((r) => r.json().then((r) => r.count));
-        console.log(count);
-        // Update the state with the fetched data
         setResultCount(count);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -58,9 +73,8 @@ const App = () => {
     };
     // Call the fetchData function when the component mounts
     fetchData();
-
     return () => {};
-  }, [data]);
+  }, [data.type, query, data.toppieces, data.onDisplay]);
 
   // Update data state method
   const updateData = (key, value) => {
@@ -73,12 +87,14 @@ const App = () => {
   };
 
   const queryHandler = (event) => {
-    setData({ ...data, query: event });
+    setQuery(event);
   };
 
-  const onCreate = async () => {
+  const onCreate = async (event) => {
+    event.preventDefault();
     setIsLoading(true);
-    await fetchArtworkDetails(data, resultCount, qualityLevel);
+    await fetchArtworkDetails(data, query, resultCount, qualityLevel);
+    parent.postMessage({ pluginMessage: { type: 'save-data', data } }, '*');
     setIsLoading(false);
   };
 
@@ -90,13 +106,16 @@ const App = () => {
   );
 
   return (
-    <div className="app">
-      <div className="form">
+    <form className="app" onSubmit={onCreate}>
+      <div className="scroll-container">
         <div className="input-form">
           {/* Brand Tabs */}
           <div className="row">
             <div className="input-container">
-              <Label>Type of Art</Label>
+              <div className="row">
+                <Label>Object</Label>
+                <Label className="label-right">{resultCount} items</Label>
+              </div>
               <div className="tab_container">
                 {types.map((type) => (
                   <Tab
@@ -126,14 +145,14 @@ const App = () => {
             <div className="input-container">
               <div className="row">
                 <Label>Quality</Label>
-                <Label className="label-right">{qualityLabel[data.values[0]]}</Label>
+                <Label className="label-right">{qualityLabel[data.quality[0]]}</Label>
               </div>
               <Range
-                values={data.values}
+                values={data.quality}
                 step={step}
                 min={min}
                 max={max}
-                onChange={(values) => updateData('values', values)}
+                onChange={(values) => updateData('quality', values)}
                 renderTrack={({ props, children }) => (
                   <div
                     onMouseDown={props.onMouseDown}
@@ -152,7 +171,7 @@ const App = () => {
                         width: '100%',
                         borderRadius: '4px',
                         background: getTrackBackground({
-                          values: data.values,
+                          values: data.quality,
                           colors: ['var(--figma-color-bg-brand)', 'var(--figma-color-bg-secondary)'],
                           min: min,
                           max: max,
@@ -193,6 +212,7 @@ const App = () => {
               type="switch"
               defaultValue={data.toppieces}
               onChange={handleCheckboxChange('toppieces')}
+              key={`toppieces-${data.toppieces}`}
             />
           </div>
           <div className="divider" />
@@ -204,35 +224,48 @@ const App = () => {
               type="switch"
               defaultValue={data.onDisplay}
               onChange={handleCheckboxChange('onDisplay')}
+              key={`onDisplay-${data.onDisplay}`}
             />
           </div>
           <div className="divider" />
           <div className="row">
             <Icon color="black3" name="frame" />
             <Label>With frame</Label>
-            <Checkbox label="" type="switch" defaultValue={data.framed} onChange={handleCheckboxChange('framed')} />
+            <Checkbox
+              label=""
+              type="switch"
+              defaultValue={data.framed}
+              onChange={handleCheckboxChange('framed')}
+              key={`framed-${data.framed}`}
+            />
           </div>
           <div className="divider" />
           <div className="row">
             <Icon color="black3" name="draft" />
             <Label>With description</Label>
-            <Checkbox label="" type="switch" defaultValue={data.caption} onChange={handleCheckboxChange('caption')} />
+            <Checkbox
+              label=""
+              type="switch"
+              defaultValue={data.caption}
+              onChange={handleCheckboxChange('caption')}
+              key={`caption-${data.caption}`}
+            />
           </div>
           <div className="divider" />
         </div>
       </div>
       <div className="actions">
         {/* Artwork provided by Rijksmuseum Amsterdam */}
-        <Button className="primary-btn flex-grow" onClick={onCreate} isDisabled={isLoading}>
+        <Button className="primary-btn flex-grow" isDisabled={isLoading}>
           {!isLoading ? (
-            `Get random art (${resultCount})`
+            <span>Import artwork</span>
           ) : (
             <ReactLoading type={'bubbles'} color={'var(--figma-color-text)'} height={32} width={32} />
           )}
         </Button>
       </div>
       <CornerResize />
-    </div>
+    </form>
   );
 };
 

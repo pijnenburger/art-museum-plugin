@@ -25,7 +25,7 @@ async function createArtwork(msg) {
   figma.currentPage.appendChild(container);
 
   container.resize(containerWidth / (baseSize / size), containerHeight / (baseSize / size));
-  container.name = 'Artwork';
+  container.name = artworkTitle;
 
   for (const item of JSON.parse(items)) {
     const imageOldUrl = item.url;
@@ -120,6 +120,18 @@ async function createArtwork(msg) {
 }
 
 figma.ui.onmessage = async (msg) => {
+  if (msg.type === 'save-data') {
+    figma.clientStorage.setAsync('artmuseum_data', msg.data).then(() => {
+      figma.ui.postMessage({ type: 'data-saved', data: msg.data });
+    });
+  }
+
+  if (msg.type === 'fetch-data') {
+    figma.clientStorage.getAsync('artmuseum_data').then((data) => {
+      figma.ui.postMessage({ type: 'fetched-data', data });
+    });
+  }
+
   switch (msg.type) {
     case 'no-artwork-found':
       showErrorNotification('No artworks found.');
