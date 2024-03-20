@@ -25,8 +25,33 @@ const App = () => {
     caption: true,
   });
   const [query, setQuery] = useState('');
-  const [resultCount, setResultCount] = useState(100);
-  const [isLoading, setIsLoading] = useState(false);
+  const [resultCount, setResultCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // this calculates the count of options before sending it
+  useEffect(() => {
+    console.log('running useEffect 1');
+    let typeFilter = data.type ? `&type=${data.type}` : '';
+    let queryFilter = query !== '' ? `&q=${encodeURIComponent(query)}` : '';
+    let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
+    let topFilter = `&toppieces=${data.toppieces.toString()}`;
+
+    const fetchData = async () => {
+      setIsLoading(true);
+      // Do initial
+      try {
+        let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}`;
+        const count = await fetch(countUrl).then((r) => r.json().then((r) => r.count));
+        setResultCount(count);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+      setIsLoading(false);
+    };
+    // Call the fetchData function when the component mounts
+    fetchData();
+    return () => {};
+  }, [data.type, query, data.toppieces, data.onDisplay]);
 
   useEffect(() => {
     // Send a message to your controller to fetch the stored data
@@ -51,30 +76,6 @@ const App = () => {
   // Generate qualityLabel array from qualityLevels JSON
   const qualityLabel = qualityLevels.map((quality) => quality.label);
   const qualityLevel = Object.fromEntries(qualityLevels.map((quality) => [quality.value, quality.level]));
-
-  // this calculates the count of options before sending it
-  useEffect(() => {
-    let typeFilter = data.type ? `&type=${data.type}` : '';
-    let queryFilter = query !== '' ? `&q=${encodeURIComponent(query)}` : '';
-    let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
-    let topFilter = `&toppieces=${data.toppieces.toString()}`;
-
-    const fetchData = async () => {
-      setIsLoading(true);
-      // Do initial
-      try {
-        let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
-        const count = await fetch(countUrl).then((r) => r.json().then((r) => r.count));
-        setResultCount(count);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-      setIsLoading(false);
-    };
-    // Call the fetchData function when the component mounts
-    fetchData();
-    return () => {};
-  }, [data.type, query, data.toppieces, data.onDisplay]);
 
   // Update data state method
   const updateData = (key, value) => {

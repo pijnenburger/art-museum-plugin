@@ -12,11 +12,14 @@ export const fetchArtworkDetails = async (
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
+    console.log(`received count: ${resultCount}`);
     let randomNumber = Math.min(Math.ceil(Math.random() * resultCount), 10000);
-    let url = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
+    let url = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}`;
 
     // console.log(firstUrl);
     let json = await fetch(url).then((r) => r.json());
+    console.log('API Response:', json);
+    console.log('Constructed URL:', url);
     console.log('Artworks found:', json.count);
 
     if (json.count > 0) {
