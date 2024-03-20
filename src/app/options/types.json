@@ -1,5 +1,6 @@
 [
-  { "label": "Painting", "value": "painting" },
-  { "label": "Photograph", "value": "photograph" },
-  { "label": "Print", "value": "print" }
+  { "label": "All", "value": "", "emoji": "" },
+  { "label": "Painting", "value": "painting", "emoji": "🖼️" },
+  { "label": "Photograph", "value": "photograph", "emoji": "📷" },
+  { "label": "Print", "value": "print", "emoji": "📃" }
 ]

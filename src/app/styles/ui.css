@@ -33,12 +33,76 @@ body {
 }
 
 .form {
-  padding: 1rem 1rem 0rem 1rem;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 8px;
+  overflow: auto;
 }
+
+.input-form {
+  padding: 1rem 1rem 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: auto;
+}
+
+/* Tabs */
+
+.tab_container {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
+  gap: 1px;
+  height: auto;
+  flex: 1;
+  border: 1px solid var(--figma-color-border);
+  background-color: var(--figma-color-bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tab_divider {
+  height: 100%;
+  width: 1px;
+  background-color: var(--figma-color-border);
+}
+
+.tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 64px;
+  box-sizing: border-box;
+  flex: 1;
+  border: none;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--figma-color-bg-secondary);
+  color: var(--figma-color-text-tertiary);
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+}
+
+.tab:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.tab_active {
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+}
+
+.tab_active:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.tab_emoji {
+  font-size: 20px;
+}
+
+/* Actions bar */
 
 .actions {
   padding: 1rem;

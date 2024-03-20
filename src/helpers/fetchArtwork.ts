@@ -1,17 +1,14 @@
 import parentPostMessage from './parentPostMessage';
+import showNotification from './showNotification';
 
-export const fetchArtworkDetails = async (data: any, qualityLevel: { [key: number]: string }) => {
+export const fetchArtworkDetails = async (data: any, resultCount: number, qualityLevel: { [key: number]: string }) => {
   try {
     let typeFilter = data.type ? `&type=${data.type}` : '';
     let queryFilter = data.search && data.query !== '' ? `&q=${encodeURIComponent(data.query)}` : '';
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
     let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
-    let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
-    console.log(countUrl);
-    let count = await fetch(countUrl).then((r) => r.json().then((s) => s.count));
-
-    let randomNumber = Math.min(Math.ceil(Math.random() * count), 10000);
+    let randomNumber = Math.min(Math.ceil(Math.random() * resultCount), 10000);
     let firstUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}&st=objects`;
 
     // console.log(firstUrl);
@@ -25,8 +22,8 @@ export const fetchArtworkDetails = async (data: any, qualityLevel: { [key: numbe
       console.log(`Selected artwork: ${artworkTitle} (${collectionID})`);
 
       const [detailsResponse, tilesResponse] = await Promise.all([
-        fetch(`https://www.rijksmuseum.nl/api/en/collection/${collectionID}?key=m6fzmvxx&culture=en`),
-        fetch(`https://www.rijksmuseum.nl/api/en/collection/${collectionID}/tiles?key=m6fzmvxx`),
+        fetch(`https://www.rijksmuseum.nl/api/nl/collection/${collectionID}?key=m6fzmvxx&culture=en`),
+        fetch(`https://www.rijksmuseum.nl/api/nl/collection/${collectionID}/tiles?key=m6fzmvxx`),
       ]);
 
       const [detailsData, tilesData] = await Promise.all([detailsResponse.json(), tilesResponse.json()]);
@@ -64,9 +61,11 @@ export const fetchArtworkDetails = async (data: any, qualityLevel: { [key: numbe
         framed: data.framed,
       });
     } else {
+      parentPostMessage('no-artwork-found');
       console.log('No artworks found.');
     }
   } catch (error) {
+    showNotification('Error fetching artwork', { error: true, timeout: 2000 });
     console.error('Error fetching artwork:', error);
   }
 };

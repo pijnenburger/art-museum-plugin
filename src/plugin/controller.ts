@@ -1,20 +1,18 @@
 import showNotification from '../helpers/showNotification';
 import { FONT_LIST } from '../helpers/constants';
+import { FRAME_STYLE, ART_STYLE } from '../helpers/styles';
 
-figma.showUI(__html__, { width: 340, height: 460, themeColors: true });
+figma.showUI(__html__, { width: 340, height: 560, themeColors: true });
 Promise.all(FONT_LIST.map((font) => figma.loadFontAsync(font)));
+
+let currentViewX = figma.viewport.center.x;
+let currentViewY = figma.viewport.center.y;
 
 function showErrorNotification(message: string) {
   showNotification(message, { error: true, timeout: 2000 });
 }
 
-let currentViewX = figma.viewport.center.x;
-let currentViewY = figma.viewport.center.y;
-
 async function createArtwork(msg) {
-  // Load fonts
-  await Promise.all(FONT_LIST.map((font) => figma.loadFontAsync(font)));
-
   const { containerWidth, containerHeight, maxX, maxY, framed, artworkTitle, caption, items, label } = msg;
 
   const baseSize = 512;
@@ -70,89 +68,8 @@ async function createArtwork(msg) {
     pictureFrame.dashPattern = [12, 24];
     pictureFrame.strokeAlign = 'OUTSIDE';
     pictureFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
-    pictureFrame.effects = [
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.25 },
-        offset: { x: -12, y: -12 },
-        radius: 12,
-        spread: 24,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0.62, g: 0.35, b: 0.17, a: 1 },
-        offset: { x: 0, y: 0 },
-        radius: 0,
-        spread: 32,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0.83, g: 0.55, b: 0.37, a: 1 },
-        offset: { x: 0, y: 0 },
-        radius: 0,
-        spread: 24,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0.47, g: 0.27, b: 0.13, a: 1 },
-        offset: { x: 0, y: 0 },
-        radius: 0,
-        spread: 16,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'DROP_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.08 },
-        offset: { x: 0, y: 48 },
-        radius: 40,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'DROP_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.08 },
-        offset: { x: 0, y: 48 },
-        radius: 40,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'DROP_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.08 },
-        offset: { x: 0, y: 64 },
-        radius: 48,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-    ];
-
-    container.effects = [
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.2 },
-        offset: { x: -8, y: -8 },
-        radius: 4,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-      {
-        type: 'INNER_SHADOW',
-        color: { r: 0, g: 0, b: 0, a: 0.2 },
-        offset: { x: 4, y: 4 },
-        radius: 8,
-        spread: 0,
-        visible: true,
-        blendMode: 'NORMAL',
-      },
-    ];
-
+    pictureFrame.effects = FRAME_STYLE;
+    container.effects = ART_STYLE;
     pictureFrame.appendChild(container);
     figma.currentPage.selection = [pictureFrame];
   }
@@ -174,9 +91,10 @@ async function createArtwork(msg) {
 
     // Create caption text elements
     // Ensure label properties exist before accessing them
-    const title = label?.title || '-';
-    const makerLine = label?.makerLine || '-';
-    const plaqueDescription = label?.plaqueDescriptionEnglish || label?.plaqueDescriptionDutch || '-';
+    const title = label?.title || '[untitled]';
+    const makerLine = label?.makerLine || '[unknown artist]';
+    const plaqueDescription =
+      label?.plaqueDescriptionEnglish || label?.plaqueDescriptionDutch || '[no description available]';
 
     const titleText = figma.createText();
     titleText.fontName = { family: 'Inter', style: 'Bold' };
@@ -202,17 +120,19 @@ async function createArtwork(msg) {
 }
 
 figma.ui.onmessage = async (msg) => {
-  if (msg.type === 'resize') {
-    figma.ui.resize(msg.size.w, msg.size.h);
-  } else
-    try {
-      if (msg.type === 'create') {
-        await createArtwork(msg);
-      }
-    } catch (error) {
-      console.error('Error:', error);
+  switch (msg.type) {
+    case 'no-artwork-found':
+      showErrorNotification('No artworks found.');
+      break;
+    case 'error':
       showErrorNotification('An error occurred.');
-    } finally {
+      break;
+    case 'resize':
+      figma.ui.resize(msg.size.w, msg.size.h);
+      break;
+    case 'create':
+      await createArtwork(msg);
       figma.closePlugin();
-    }
+      break;
+  }
 };
