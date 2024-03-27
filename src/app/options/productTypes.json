@@ -1,0 +1,5 @@
+[
+  { "label": "All", "value": "", "emoji": "" },
+  { "label": "Painting", "value": "painting", "emoji": "🖼️" },
+  { "label": "Print", "value": "print", "emoji": "📃" }
+]

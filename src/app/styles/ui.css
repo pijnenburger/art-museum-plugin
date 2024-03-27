@@ -2,6 +2,18 @@
   height: 100%;
 }
 
+#corner {
+  will-change: auto;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  cursor: nwse-resize;
+}
+
+.handle_line {
+  fill: var(--figma-color-text-tertiary);
+}
+
 body {
   background-color: var(--figma-color-bg);
   color: var(--figma-color-text);
@@ -20,13 +32,78 @@ body {
   justify-content: space-between;
 }
 
-.form {
-  padding: 1rem 1rem 0rem 1rem;
+.scroll-container {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  gap: 8px;
+  overflow: auto;
 }
+
+.input-form {
+  padding: 1rem 1rem 0rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: auto;
+}
+
+/* Tabs */
+
+.tab_container {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: row;
+  gap: 4px;
+  height: auto;
+  flex: 1;
+  border: none;
+
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* .tab_divider {
+  height: 100%;
+  width: 1px;
+  background-color: var(--figma-color-border);
+} */
+
+.tab {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  min-height: 64px;
+  box-sizing: border-box;
+  flex: 1;
+  border: 1px solid var(--figma-color-border);
+  border-radius: 4px;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--figma-color-bg-secondary);
+  color: var(--figma-color-text-tertiary);
+  font-size: var(--font-size-xsmall);
+  font-weight: var(--font-weight-normal);
+  letter-spacing: var(--font-letter-spacing-pos-xsmall);
+}
+
+.tab:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.tab_active {
+  background-color: var(--figma-color-bg);
+  color: var(--figma-color-text);
+}
+
+.tab_active:hover {
+  background-color: var(--figma-color-bg);
+}
+
+.tab_emoji {
+  font-size: 20px;
+}
+
+/* Actions bar */
 
 .actions {
   padding: 1rem;
@@ -34,6 +111,7 @@ body {
   flex-direction: column;
   flex-grow: 0;
   gap: 8px;
+  border-top: 1px solid var(--figma-color-border);
 }
 
 .row {
@@ -41,6 +119,12 @@ body {
   flex-direction: row;
   gap: 4px;
   /* background: lightgray; */
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .label {
@@ -65,6 +149,27 @@ body {
 }
 
 /* Inputs */
+
+.select-row > div {
+  width: 100%;
+}
+
+.search-input-container {
+  position: relative;
+}
+
+.search-input {
+  height: 32px;
+  padding-left: 32px;
+  margin: 8px 0;
+}
+
+.search-icon {
+  position: absolute;
+  top: 8px;
+  z-index: 1;
+  margin: auto;
+}
 
 .input {
   display: block;
