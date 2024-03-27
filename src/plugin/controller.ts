@@ -2,7 +2,7 @@ import showNotification from '../helpers/showNotification';
 import { FONT_LIST } from '../helpers/constants';
 import { FRAME_STYLE, ART_STYLE } from '../helpers/styles';
 
-figma.showUI(__html__, { width: 340, height: 560, themeColors: true });
+figma.showUI(__html__, { width: 340, height: 490, themeColors: true });
 Promise.all(FONT_LIST.map((font) => figma.loadFontAsync(font)));
 
 let currentViewX = figma.viewport.center.x;
@@ -14,6 +14,8 @@ function showErrorNotification(message: string) {
 
 async function createArtwork(msg) {
   const { containerWidth, containerHeight, maxX, maxY, framed, artworkTitle, caption, items, label } = msg;
+
+  console.log(msg);
 
   const baseSize = 512;
   const size = 248;
@@ -92,9 +94,12 @@ async function createArtwork(msg) {
     // Create caption text elements
     // Ensure label properties exist before accessing them
     const title = label?.title || '[untitled]';
-    const makerLine = label?.makerLine || '[unknown artist]';
+    const makerLine = label?.makerLine || label?.principalMaker || '[unknown artist]';
     const plaqueDescription =
-      label?.plaqueDescriptionEnglish || label?.plaqueDescriptionDutch || '[no description available]';
+      label?.plaqueDescriptionEnglish ||
+      label?.plaqueDescriptionDutch ||
+      label?.description ||
+      '[no description available]';
 
     const titleText = figma.createText();
     titleText.fontName = { family: 'Inter', style: 'Bold' };
@@ -118,6 +123,14 @@ async function createArtwork(msg) {
     plaqueDescriptionText.layoutAlign = 'STRETCH';
   }
 }
+
+figma.on('run', () => {
+  figma.clientStorage.getAsync('artmuseum_data').then((data) => {
+    setTimeout(() => {
+      figma.ui.postMessage({ type: 'fetched-data', data });
+    }, 200);
+  });
+});
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === 'save-data') {

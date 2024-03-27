@@ -10,7 +10,7 @@ function useResizableWindow(ref: React.RefObject<HTMLDivElement>) {
       if (isDragging && ref.current) {
         const size = {
           w: Math.max(340, Math.floor(e.clientX + 5)),
-          h: Math.max(560, Math.floor(e.clientY + 5)),
+          h: Math.max(490, Math.floor(e.clientY + 5)),
         };
         parentPostMessage('resize', { size: size });
       }

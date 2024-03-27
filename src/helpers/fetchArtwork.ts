@@ -1,32 +1,25 @@
 import parentPostMessage from './parentPostMessage';
 
-export const fetchArtworkDetails = async (
-  data: any,
-  query: string,
-  resultCount: number,
-  qualityLevel: { [key: number]: string }
-) => {
+export const fetchArtworkDetails = async (data: any, query: string, qualityLevel: { [key: number]: string }) => {
   try {
     let typeFilter = data.type ? `&type=${data.type}` : '';
     let queryFilter = query !== '' ? `&q=${encodeURIComponent(query)}` : '';
     let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
-    let topFilter = `&toppieces=${data.toppieces.toString()}`;
 
-    console.log(`received count: ${resultCount}`);
-    let randomNumber = Math.min(Math.ceil(Math.random() * resultCount), 10000);
-    let url = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${topFilter}${onDisplayFilter}${queryFilter}`;
+    // console.log(`received count: ${data.resultCount}`);
+    let randomNumber = Math.min(Math.ceil(Math.random() * data.resultCount), 10000);
+    let url = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=${randomNumber}&ps=1${onDisplayFilter}${queryFilter}`;
 
-    // console.log(firstUrl);
     let json = await fetch(url).then((r) => r.json());
-    console.log('API Response:', json);
-    console.log('Constructed URL:', url);
-    console.log('Artworks found:', json.count);
+    // console.log('API Response:', json);
+    // console.log('Constructed URL:', url);
+    // console.log('Artworks found:', json.count);
 
     if (json.count > 0) {
       let collectionID = json.artObjects[0].objectNumber;
       let artworkTitle = json.artObjects[0].longTitle;
 
-      console.log(`Selected artwork: ${artworkTitle} (${collectionID})`);
+      console.log(`Artwork: ${artworkTitle} (${collectionID})`);
 
       const [detailsResponse, tilesResponse] = await Promise.all([
         fetch(`https://www.rijksmuseum.nl/api/nl/collection/${collectionID}?key=m6fzmvxx&culture=en`),
@@ -41,6 +34,8 @@ export const fetchArtworkDetails = async (
         }
 
         const [detailsData, tilesData] = await Promise.all([detailsResponse.json(), tilesResponse.json()]);
+
+        console.log(detailsData);
 
         let label = detailsData.artObject;
         let results = tilesData.levels.filter((obj) => {

@@ -4,74 +4,70 @@ import { Range, getTrackBackground } from 'react-range';
 import ReactLoading from 'react-loading';
 import CornerResize from './CornerResize';
 import { fetchArtworkDetails } from '../../helpers/fetchArtwork';
-// import parentPostMessage from '../../helpers/parentPostMessage';
+import { fetchResultCount } from '../../helpers/fetchResultCount';
 
 import types from '../options/productTypes.json';
 import qualityLevels from '../options/qualityLevels.json';
 import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import '../styles/ui.css';
 
-const App = () => {
-  const step = 1;
-  const min = 0;
-  const max = 4;
+const step = 1;
+const min = 0;
+const max = 4;
 
-  const [data, setData] = useState({
+const App = () => {
+  let defaultData = {
     quality: [2],
     type: '',
-    toppieces: false,
     onDisplay: true,
     framed: true,
     caption: true,
-  });
+    resultCount: null,
+  };
+  const [data, setData] = useState(defaultData);
   const [query, setQuery] = useState('');
-  const [resultCount, setResultCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+
+  const initialFetchComplete = React.useRef(false);
+
+  // Get the storedData
+  useEffect(() => {
+    parent.postMessage({ pluginMessage: { type: 'fetch-data' } }, '*');
+    function handleMessages(event) {
+      const { type, data } = event.data.pluginMessage;
+      if (type === 'fetched-data') {
+        console.log('restored data', data);
+        setData(data);
+        initialFetchComplete.current = true; // Mark initial fetch as complete
+      }
+    }
+    window.addEventListener('message', handleMessages);
+
+    return () => {
+      // Cleanup the event listener
+      window.removeEventListener('message', handleMessages);
+    };
+  }, []);
+
+  const fetchData = async () => {
+    if (!initialFetchComplete.current) return; // Prevent fetchData before initial data is set
+
+    setIsLoading(true);
+    const newCount = await fetchResultCount(data, query);
+    updateData('resultCount', newCount);
+    setIsLoading(false);
+  };
 
   // this calculates the count of options before sending it
   useEffect(() => {
-    console.log('running useEffect 1');
-    let typeFilter = data.type ? `&type=${data.type}` : '';
-    let queryFilter = query !== '' ? `&q=${encodeURIComponent(query)}` : '';
-    let onDisplayFilter = data.onDisplay ? '&ondisplay=true' : '';
-    let topFilter = `&toppieces=${data.toppieces.toString()}`;
+    // Call the fetchData function whenever data changes
+    if (initialFetchComplete.current) {
+      // Only run this effect if initial data has been fetched
+      fetchData();
+    }
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      // Do initial
-      try {
-        let countUrl = `https://www.rijksmuseum.nl/api/en/collection?key=m6fzmvxx${typeFilter}&imgonly=true&culture=en&p=1&ps=1${topFilter}${onDisplayFilter}${queryFilter}`;
-        const count = await fetch(countUrl).then((r) => r.json().then((r) => r.count));
-        setResultCount(count);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-      setIsLoading(false);
-    };
-    // Call the fetchData function when the component mounts
-    fetchData();
     return () => {};
-  }, [data.type, query, data.toppieces, data.onDisplay]);
-
-  useEffect(() => {
-    // Send a message to your controller to fetch the stored data
-    parent.postMessage({ pluginMessage: { type: 'fetch-data' } }, '*');
-
-    const onMessage = (event) => {
-      if (!event.data.pluginMessage) return; // Guard clause
-      const { type, data } = event.data.pluginMessage;
-      if (type === 'fetched-data' && data) {
-        console.log('Fetched data:', data);
-        setData(data);
-      }
-    };
-    window.addEventListener('message', onMessage);
-
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('message', onMessage);
-    };
-  }, []);
+  }, [data.type, data.onDisplay, query]);
 
   // Generate qualityLabel array from qualityLevels JSON
   const qualityLabel = qualityLevels.map((quality) => quality.label);
@@ -94,7 +90,7 @@ const App = () => {
   const onCreate = async (event) => {
     event.preventDefault();
     setIsLoading(true);
-    await fetchArtworkDetails(data, query, resultCount, qualityLevel);
+    await fetchArtworkDetails(data, query, qualityLevel);
     parent.postMessage({ pluginMessage: { type: 'save-data', data } }, '*');
     setIsLoading(false);
   };
@@ -115,7 +111,7 @@ const App = () => {
             <div className="input-container">
               <div className="row">
                 <Label>Object</Label>
-                <Label className="label-right">{resultCount} items</Label>
+                <Label className="label-right">{data.resultCount} items</Label>
               </div>
               <div className="tab_container">
                 {types.map((type) => (
@@ -125,7 +121,7 @@ const App = () => {
                     key={type.value}
                     label={type.label}
                     active={data.type === type.value}
-                    onClick={() => setData({ ...data, type: type.value })}
+                    onClick={() => updateData('type', type.value)}
                   />
                 ))}
               </div>
@@ -204,18 +200,6 @@ const App = () => {
             </div>
           </div>
           {/* Toggleable options */}
-          <div className="divider" />
-          <div className="row">
-            <Icon color="black3" name="star-off" />
-            <Label>Toppieces only</Label>
-            <Checkbox
-              label=""
-              type="switch"
-              defaultValue={data.toppieces}
-              onChange={handleCheckboxChange('toppieces')}
-              key={`toppieces-${data.toppieces}`}
-            />
-          </div>
           <div className="divider" />
           <div className="row">
             <Icon color="black3" name="image" />
