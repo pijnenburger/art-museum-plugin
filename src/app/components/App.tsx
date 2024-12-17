@@ -11,20 +11,21 @@ import qualityLevels from '../options/qualityLevels.json';
 import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import '../styles/ui.css';
 
+console.log(types);
+
 const step = 1;
 const min = 0;
 const max = 4;
 
 const App = () => {
-  let defaultData = {
+  const [data, setData] = useState(() => ({
     quality: [2],
     type: '',
     onDisplay: true,
     framed: true,
     caption: true,
     resultCount: null,
-  };
-  const [data, setData] = useState(defaultData);
+  }));
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,10 +35,17 @@ const App = () => {
   useEffect(() => {
     parent.postMessage({ pluginMessage: { type: 'fetch-data' } }, '*');
     function handleMessages(event) {
-      const { type, data } = event.data.pluginMessage;
+      const { type, data: newData } = event.data.pluginMessage;
+
       if (type === 'fetched-data') {
-        console.log('restored data', data);
-        setData(data);
+        console.log('restored data:', newData);
+
+        setData((prev) => ({
+          ...prev, // Preserve existing state
+          ...newData, // Overwrite only valid properties
+          type: newData?.type ?? prev.type, // Ensure 'type' is not undefined
+        }));
+
         initialFetchComplete.current = true; // Mark initial fetch as complete
       }
     }
@@ -114,16 +122,17 @@ const App = () => {
                 <Label className="label-right">{data.resultCount} items</Label>
               </div>
               <div className="tab_container">
-                {types.map((type) => (
-                  <Tab
-                    showEmoji
-                    emoji={type.emoji}
-                    key={type.value}
-                    label={type.label}
-                    active={data.type === type.value}
-                    onClick={() => updateData('type', type.value)}
-                  />
-                ))}
+                {Array.isArray(types) &&
+                  types.map((type) => (
+                    <Tab
+                      showEmoji
+                      emoji={type.emoji}
+                      key={type.value}
+                      label={type.label}
+                      active={data.type === type.value}
+                      onClick={() => updateData('type', type.value)}
+                    />
+                  ))}
               </div>
             </div>
           </div>

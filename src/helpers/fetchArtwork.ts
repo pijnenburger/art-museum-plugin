@@ -68,6 +68,7 @@ export const fetchArtworkDetails = async (data: any, query: string, qualityLevel
           label,
           caption: data.caption,
           framed: data.framed,
+          scaleFactor: data.quality[0] + 1,
         });
       } catch (error) {
         parentPostMessage('error-fetching');
