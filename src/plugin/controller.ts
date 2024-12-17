@@ -1,6 +1,6 @@
 import showNotification from '../helpers/showNotification';
 import { FONT_LIST } from '../helpers/constants';
-import { FRAME_STYLE, ART_STYLE } from '../helpers/styles';
+import { generateArtStyle, generateFrameStyle } from '../helpers/styles';
 
 figma.showUI(__html__, { width: 340, height: 490, themeColors: true });
 Promise.all(FONT_LIST.map((font) => figma.loadFontAsync(font)));
@@ -13,9 +13,7 @@ function showErrorNotification(message: string) {
 }
 
 async function createArtwork(msg) {
-  const { containerWidth, containerHeight, maxX, maxY, framed, artworkTitle, caption, items, label } = msg;
-
-  console.log(msg);
+  const { containerWidth, containerHeight, maxX, maxY, framed, artworkTitle, caption, items, label, scaleFactor } = msg;
 
   const baseSize = 512;
   const size = 248;
@@ -62,16 +60,20 @@ async function createArtwork(msg) {
     pictureFrame.layoutMode = 'HORIZONTAL';
     pictureFrame.layoutAlign = 'STRETCH';
     pictureFrame.counterAxisSizingMode = 'AUTO';
-    pictureFrame.verticalPadding = 48;
-    pictureFrame.horizontalPadding = 48;
+    pictureFrame.verticalPadding = 25 * scaleFactor;
+    pictureFrame.horizontalPadding = 25 * scaleFactor;
     pictureFrame.strokes = [{ type: 'SOLID', color: { r: 0.47, g: 0.27, b: 0.13 }, opacity: 1 }];
-    pictureFrame.strokeWeight = 8;
+    pictureFrame.strokeWeight = 3 * scaleFactor;
     pictureFrame.strokeCap = 'ROUND';
-    pictureFrame.dashPattern = [12, 24];
+    pictureFrame.dashPattern = [4 * scaleFactor, 8 * scaleFactor];
     pictureFrame.strokeAlign = 'OUTSIDE';
     pictureFrame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 }, opacity: 1 }];
+
+    const FRAME_STYLE = generateFrameStyle(scaleFactor);
     pictureFrame.effects = FRAME_STYLE;
+    const ART_STYLE = generateArtStyle(scaleFactor);
     container.effects = ART_STYLE;
+
     pictureFrame.appendChild(container);
     figma.currentPage.selection = [pictureFrame];
   }
